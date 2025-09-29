@@ -40,8 +40,15 @@ export DB_PASSWORD="your_password"
 # Перейти в папку проєкту
 cd my-database-project
 
-# Запустити
+# Варіант 1: Запуск через Maven (рекомендовано)
 mvn spring-boot:run
+
+# Варіант 2: Якщо перший не працює - зібрати JAR і запустити
+mvn clean package
+java -jar target/my-database-project-0.0.1-SNAPSHOT.jar
+
+# Варіант 3: Запуск через Maven з явним вказанням плагіна
+mvn org.springframework.boot:spring-boot-maven-plugin:run
 ```
 
 ## 6. Перевірка роботи
