@@ -28,7 +28,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getById(@PathVariable Long id) {
+    public ResponseEntity<Book> getById(@PathVariable("id") Long id) {
         return bookRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -50,7 +50,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Book> update(@PathVariable Long id, @RequestBody Book book) {
+    public ResponseEntity<Book> update(@PathVariable("id") Long id, @RequestBody Book book) {
         Author newAuthor = null;
         if (book.getAuthor() != null && book.getAuthor().getId() != null) {
             newAuthor = authorRepository.findById(book.getAuthor().getId()).orElse(null);
@@ -73,7 +73,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         if (!bookRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
