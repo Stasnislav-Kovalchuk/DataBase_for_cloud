@@ -28,7 +28,7 @@ brew services start mysql
 
 ## Структура проєкту
 ```
-ооаао
+
 my-database-project/
 ├── src/
 ├── db/
