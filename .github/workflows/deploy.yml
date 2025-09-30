@@ -19,22 +19,25 @@ jobs:
         script: |
           # Переходимо в папку проєкту
           cd ~/DataBase_for_cloud/my-database-project
-
+          
           # Завантажуємо останні зміни з гілки main
           echo ">>> Pulling latest changes from GitHub..."
           git pull origin main
-
+          
           # Зупиняємо старий процес, якщо він запущений
           echo ">>> Stopping old application process..."
           # Ця команда знайде процес, що слухає порт 8080, і 'вб'є' його. '|| true' ігнорує помилку, якщо процес не знайдено.
           sudo fuser -k 8080/tcp || true
-
-          # Запускаємо додаток у фоновому режимі
-          echo ">>> Starting new application process..."
-          # 'nohup' дозволяє додатку працювати, навіть коли SSH-сесія завершиться
-          # '&' запускає процес у фоні
-          # Ми також передаємо секрети БД як змінні середовища
+          
+          # Експортуємо секрети для підключення до БД
           export DB_HOST=${{ secrets.DB_HOST }}
           export DB_USER=${{ secrets.DB_USER }}
           export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          nohup mvn spring-boot:run > app.log 2>&1 &
+          
+          # Крок 1: Збираємо проєкт у JAR-файл
+          echo ">>> Building the project into a JAR..."
+          mvn clean package
+
+          # Крок 2: Запускаємо тільки JAR-файл (це набагато ефективніше)
+          echo ">>> Starting the application from JAR..."
+          nohup java -jar target/my-database-project-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
