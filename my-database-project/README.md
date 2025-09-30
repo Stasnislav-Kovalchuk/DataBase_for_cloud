@@ -28,6 +28,7 @@ brew services start mysql
 
 ## Структура проєкту
 ```
+ntcn
 my-database-project/
 ├── src/
 ├── db/
