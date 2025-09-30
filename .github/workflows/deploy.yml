@@ -1,0 +1,40 @@
+name: Deploy to Azure VM
+
+# Цей воркфлоу запускається автоматично при пуші в гілку 'main'
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to VM via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          # Переходимо в папку проєкту
+          cd ~/DataBase_for_cloud/my-database-project
+
+          # Завантажуємо останні зміни з гілки main
+          echo ">>> Pulling latest changes from GitHub..."
+          git pull origin main
+
+          # Зупиняємо старий процес, якщо він запущений
+          echo ">>> Stopping old application process..."
+          # Ця команда знайде процес, що слухає порт 8080, і 'вб'є' його. '|| true' ігнорує помилку, якщо процес не знайдено.
+          sudo fuser -k 8080/tcp || true
+
+          # Запускаємо додаток у фоновому режимі
+          echo ">>> Starting new application process..."
+          # 'nohup' дозволяє додатку працювати, навіть коли SSH-сесія завершиться
+          # '&' запускає процес у фоні
+          # Ми також передаємо секрети БД як змінні середовища
+          export DB_HOST=${{ secrets.DB_HOST }}
+          export DB_USER=${{ secrets.DB_USER }}
+          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          nohup mvn spring-boot:run > app.log 2>&1 &
