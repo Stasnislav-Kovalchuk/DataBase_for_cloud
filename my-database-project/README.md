@@ -28,6 +28,7 @@ brew services start mysql
 
 ## Структура проєкту
 ```
+test github
 my-database-project/
 ├── src/
 ├── db/
