@@ -1,0 +1,63 @@
+services:
+  # MySQL база даних
+  mysql:
+    image: mysql:8.0
+    container_name: database-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Spring Boot додаток
+  app:
+    build: .
+    container_name: database-app
+    environment:
+      DB_HOST: mysql
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+      BASIC_USER: user
+      BASIC_PASSWORD: password
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # Load testing service (для бонусного завдання)
+  load-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.loadtest
+    container_name: database-loadtest
+    environment:
+      TARGET_URL: http://app:8080
+      USERS: 10
+      DURATION: 60s
+    depends_on:
+      - app
+    networks:
+      - app-network
+    profiles:
+      - loadtest
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge

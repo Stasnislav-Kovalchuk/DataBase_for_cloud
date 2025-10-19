@@ -1,0 +1,40 @@
+# Azure Container Instances deployment configuration
+# Використання: az container create --resource-group myResourceGroup --file azure-deploy.yml
+
+apiVersion: 2021-09-01
+location: eastus
+name: database-app
+properties:
+  containers:
+  - name: database-app
+    properties:
+      image: your-registry.azurecr.io/database-app:latest
+      resources:
+        requests:
+          cpu: 1.0
+          memoryInGb: 2.0
+      ports:
+      - port: 8080
+        protocol: TCP
+      environmentVariables:
+      - name: DB_HOST
+        value: your-mysql-server.mysql.database.azure.com
+      - name: DB_USER
+        value: appuser
+      - name: DB_PASSWORD
+        secureValue: your-secure-password
+      - name: BASIC_USER
+        value: user
+      - name: BASIC_PASSWORD
+        value: password
+  osType: Linux
+  restartPolicy: Always
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: TCP
+      port: 8080
+    dnsNameLabel: database-app-unique
+tags:
+  environment: production
+  app: database-api

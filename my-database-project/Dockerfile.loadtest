@@ -1,0 +1,16 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Встановлюємо залежності
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копіюємо скрипт тестування
+COPY load-test.py .
+
+# Робимо скрипт виконуваним
+RUN chmod +x load-test.py
+
+# Запускаємо тест
+CMD ["python", "load-test.py", "--url", "http://app:8080", "--users", "10", "--duration", "60", "--ramp-up", "10"]
